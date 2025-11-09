@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Udemy Transcript Copier</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      width: 500px;
+      min-height: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #fff;
+    }
+
+    .header {
+      padding: 16px 20px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1c1d1f;
+    }
+
+    .body {
+      padding: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1c1d1f;
+    }
+
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 250px;
+      padding: 12px;
+      font-family: "Courier New", monospace;
+      font-size: 13px;
+      resize: vertical;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #8a2be2;
+      box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-reset {
+      color: #1c1d1f;
+      background-color: #f0f0f0;
+    }
+
+    .btn-reset:hover {
+      background-color: #e0e0e0;
+    }
+
+    .btn-save {
+      color: white;
+      background-color: #8a2be2;
+    }
+
+    .btn-save:hover {
+      background-color: #7a1bd2;
+    }
+
+    .message {
+      display: none;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 14px;
+      border-radius: 4px;
+    }
+
+    .message.success {
+      color: #155724;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      color: #721c24;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .info {
+      margin-top: 8px;
+      font-size: 12px;
+      font-style: italic;
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>Transcript Template Settings</h2>
+  </div>
+  <div class="body">
+    <label for="template-input">Edit template (use {{ transcript }} as placeholder):</label>
+    <textarea id="template-input" placeholder="Loading..."></textarea>
+    <div class="info">The template will be used when copying transcripts. Use {{ transcript }} as a placeholder for the actual transcript text.</div>
+    <div class="actions">
+      <button class="btn-reset" id="reset-btn">Reset to Default</button>
+      <button class="btn-save" id="save-btn">Save</button>
+    </div>
+    <div class="message" id="message"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

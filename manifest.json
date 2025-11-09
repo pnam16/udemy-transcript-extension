@@ -1,0 +1,19 @@
+{
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Udemy Transcript Copier"
+  },
+  "content_scripts": [
+    {
+      "css": ["styles.css"],
+      "js": ["content.js"],
+      "matches": ["*://*.udemy.com/*"],
+      "run_at": "document_idle"
+    }
+  ],
+  "description": "Extract and copy Udemy lecture transcripts with customizable templates. Features a floating action button, template editor, and automatic transcript extraction.",
+  "manifest_version": 3,
+  "name": "Udemy Transcript Copier",
+  "permissions": ["activeTab", "clipboardWrite", "storage"],
+  "version": "1.0.0"
+}
