@@ -375,95 +375,6 @@ Result in Vietnamese and English.`;
     await copyTranscript();
   };
 
-  // Show/hide settings panel
-  const toggleSettingsPanel = async () => {
-    const existing = document.getElementById("udemy-transcript-settings");
-    const existingBackdrop = document.getElementById(
-      "udemy-transcript-settings-backdrop",
-    );
-    if (existing) {
-      existing.remove();
-      if (existingBackdrop) existingBackdrop.remove();
-      return;
-    }
-
-    // Create backdrop
-    const backdrop = document.createElement("div");
-    backdrop.id = "udemy-transcript-settings-backdrop";
-    backdrop.className = "udemy-transcript-settings-backdrop";
-
-    const panel = document.createElement("div");
-    panel.id = "udemy-transcript-settings";
-    panel.className = "udemy-transcript-settings";
-
-    const currentTemplate = await getTemplate();
-
-    panel.innerHTML = `
-      <div class="udemy-transcript-settings-header">
-        <h3>Transcript Template Settings</h3>
-        <button class="udemy-transcript-settings-close" aria-label="Close">×</button>
-      </div>
-      <div class="udemy-transcript-settings-body">
-        <label for="udemy-transcript-template-input">Edit template (use {{ transcript }} as placeholder):</label>
-        <textarea id="udemy-transcript-template-input" rows="12" placeholder="${defaultTemplate}">${currentTemplate}</textarea>
-        <div class="udemy-transcript-settings-actions">
-          <button class="udemy-transcript-settings-reset">Reset to Default</button>
-          <button class="udemy-transcript-settings-save">Save</button>
-        </div>
-      </div>
-    `;
-
-    // Close function
-    const closePanel = () => {
-      panel.remove();
-      backdrop.remove();
-    };
-
-    // Backdrop click handler
-    backdrop.addEventListener("click", closePanel);
-
-    panel
-      .querySelector(".udemy-transcript-settings-close")
-      .addEventListener("click", closePanel);
-
-    // Reset button
-    panel
-      .querySelector(".udemy-transcript-settings-reset")
-      .addEventListener("click", () => {
-        const textarea = panel.querySelector(
-          "#udemy-transcript-template-input",
-        );
-        textarea.value = defaultTemplate;
-      });
-
-    // Save button
-    panel
-      .querySelector(".udemy-transcript-settings-save")
-      .addEventListener("click", async () => {
-        const textarea = panel.querySelector(
-          "#udemy-transcript-template-input",
-        );
-        const newTemplate = textarea.value.trim();
-        if (newTemplate) {
-          await saveTemplate(newTemplate);
-          showNotification("Template saved successfully!");
-          closePanel();
-        } else {
-          showNotification("Template cannot be empty.", true);
-        }
-      });
-
-    // Close on outside click
-    panel.addEventListener("click", (e) => {
-      if (e.target === panel) {
-        closePanel();
-      }
-    });
-
-    document.body.appendChild(backdrop);
-    document.body.appendChild(panel);
-  };
-
   // Create and inject FAB button
   const createFAB = () => {
     // Remove existing FAB if any
@@ -487,19 +398,7 @@ Result in Vietnamese and English.`;
     `;
     fab.addEventListener("click", handleFABClick);
 
-    const settingsBtn = document.createElement("button");
-    settingsBtn.id = "udemy-transcript-settings-btn";
-    settingsBtn.className = "udemy-transcript-settings-btn";
-    settingsBtn.setAttribute("aria-label", "Settings");
-    settingsBtn.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.31-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.09-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.31.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/>
-      </svg>
-    `;
-    settingsBtn.addEventListener("click", toggleSettingsPanel);
-
     fabContainer.appendChild(fab);
-    fabContainer.appendChild(settingsBtn);
     document.body.appendChild(fabContainer);
   };
 
