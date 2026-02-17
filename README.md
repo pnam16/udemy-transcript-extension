@@ -5,6 +5,7 @@ A Chrome extension that automatically extracts and copies transcript text from U
 ## Features
 
 - **Floating Action Button (FAB)**: Click the purple FAB button to automatically open the transcript sidebar and copy the transcript
+- **Seek to end**: Click the green FAB button (above the purple one) to seek the current video to the end
 - **Template System**: Customize the format of copied text using templates with `{{ transcript }}` placeholder
 - **Extension Popup**: Click the extension icon to edit your template in a convenient popup
 - **Settings Panel**: Access settings directly from the page with a gear icon button
@@ -16,11 +17,20 @@ A Chrome extension that automatically extracts and copies transcript text from U
 ## Installation
 
 1. Clone or download this repository
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" (toggle in the top right)
-4. Click "Load unpacked"
-5. Select the folder containing the extension files
-6. The extension is now installed and active
+2. (Optional) Install dependencies and build: `pnpm install` then `pnpm run build`. To use the built bundle, select the `dist/` folder in step 5; otherwise use the repo root.
+3. Open Chrome and navigate to `chrome://extensions/`
+4. Enable "Developer mode" (toggle in the top right)
+5. Click "Load unpacked"
+6. Select the extension folder (repository root, or `dist/` if you ran the build)
+7. The extension is now installed and active
+
+## Development
+
+- **Install dependencies**: `pnpm install`
+- **Build**: `pnpm run build` — builds and minifies JS (esbuild, IIFE), copies manifest and popup HTML, minifies CSS; output is in `dist/`
+- **Lint**: `pnpm run lint` — runs Biome check and format
+
+Tech: Node.js, pnpm, esbuild (build), Biome (lint/format).
 
 ## Usage
 
@@ -35,6 +45,11 @@ A Chrome extension that automatically extracts and copies transcript text from U
    - Copy it to your clipboard
 4. A notification will appear confirming the copy operation
 5. Paste the transcript anywhere using Ctrl+V (Cmd+V on Mac)
+
+### Seek to end
+
+1. On a lecture page, click the **green FAB** (above the purple FAB) in the bottom-right corner.
+2. The video will seek to the end. A notification will confirm.
 
 ### Method 2: Clicking the Transcript Tab
 
@@ -65,17 +80,13 @@ The default template includes:
 
 ```
 Analyze this video and provide insights.
-
 Transcript: {{ transcript }}
-
 Please provide:
 1. Executive Summary
 2. Key Points & Takeaways
 3. Notable Quotes
 4. Actionable Insights
-
-Format as clear, structured content.
-Result in Vietnamese and English.
+Format as clear, structured content. Write in the same language as the transcript.
 ```
 
 You can customize this to any format you prefer. The `{{ transcript }}` placeholder will be replaced with the actual transcript text when copying.
@@ -83,8 +94,9 @@ You can customize this to any format you prefer. The `{{ transcript }}` placehol
 ## How It Works
 
 - **FAB Button**: When clicked, finds and clicks the transcript toggle button (`data-purpose="transcript-toggle"`) to open the sidebar
+- **Seek to end**: Finds the page’s `<video>` and seeks it to the end, then dispatches the `ended` event
 - **Smart Detection**: Checks if the transcript sidebar is already open using `aria-expanded` attribute and DOM visibility
-- **Template System**: Uses `chrome.storage.local` to sync templates between popup and content script
+- **Template System**: Default template is in `shared.js`; uses `chrome.storage.local` to sync templates between popup and content script
 - **Transcript Extraction**:
   - Finds the transcript panel using stable selectors (data attributes and partial class matching)
   - Extracts text from transcript cue containers using flexible selectors
@@ -115,14 +127,24 @@ You can customize this to any format you prefer. The `{{ transcript }}` placehol
   - Make sure you're on a Udemy course page
   - Check that the extension is enabled in `chrome://extensions/`
 
-## Files
+## Project structure
 
-- `manifest.json`: Extension configuration and permissions
-- `content.js`: Main script that handles FAB, transcript extraction, and template formatting
-- `popup.html`: Extension popup UI for template editing
-- `popup.js`: Popup script for template management
-- `styles.css`: Styling for notifications, FAB, settings panel, and hover effects
-- `README.md`: This file
+- `manifest.json` — Extension configuration and permissions
+- `content.js` — Content script: FAB, transcript extraction, template formatting (runs with `shared.js`)
+- `shared.js` — Default transcript template (shared by content script and popup)
+- `popup.html` — Extension popup UI for template editing
+- `popup.js` — Popup script for template management
+- `styles.css` — Styling for notifications, FAB, settings panel, and hover effects
+- `build.mjs` — Build script: esbuild for JS (→ `dist/`), copy manifest/popup, minify CSS
+- `biome.json` — Lint and format config (Biome)
+- `dist/` — Build output (generated by `pnpm run build`); load this folder for a production-style install
+- `PRIVACY.md` — Privacy and data handling
+- `README.md` — This file
+
+## Privacy and Chrome Web Store
+
+- **Privacy**: What data we use and how we handle it is described in [PRIVACY.md](PRIVACY.md). Keep it in sync with the extension and with the Chrome Web Store Privacy tab when publishing.
+- **Publishing**: Follow [Chrome Web Store Best Practices](https://developer.chrome.com/docs/webstore/best-practices/) (Manifest V3, minimal permissions, required images, category, and listing). Project rules are in `.cursor/rules/chrome-extension-best-practices.mdc`.
 
 ## Notes
 

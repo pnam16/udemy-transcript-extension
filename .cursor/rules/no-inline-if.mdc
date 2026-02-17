@@ -1,0 +1,37 @@
+---
+description: No inline if — always use block braces for if/else
+globs: "**/*.{js,ts,mjs,cjs,jsx,tsx}"
+alwaysApply: false
+---
+
+# No Inline If
+
+Always use block braces for `if`, `else`, and `else if`. Do not write a single statement on the same line or the next line without braces.
+
+## Avoid
+
+```javascript
+if (x) return y;
+if (ok) doSomething();
+if (n > 0) continue;
+if (done) clearInterval(id);
+```
+
+## Use Instead
+
+```javascript
+if (x) {
+  return y;
+}
+if (ok) {
+  doSomething();
+}
+if (n > 0) {
+  continue;
+}
+if (done) {
+  clearInterval(id);
+}
+```
+
+This improves readability, reduces risk of bugs when adding lines later, and keeps style consistent.

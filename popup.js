@@ -1,40 +1,24 @@
 // Popup script for Udemy Transcript Copier
+const defaultTemplate =
+  globalThis.UDEMY_TRANSCRIPT_DEFAULT_TEMPLATE ||
+  "Transcript: {{ transcript }}";
 
-const defaultTemplate = `Analyze this video and provide insights.
-
-Transcript: {{ transcript }}
-
-Please provide:
-1. Executive Summary
-2. Key Points & Takeaways
-3. Notable Quotes
-4. Actionable Insights
-
-Format as clear, structured content.
-Result in Vietnamese and English.`;
-
-// Get template from storage
 const getTemplate = async () => {
   try {
     const result = await chrome.storage.local.get([
       "udemy-transcript-template",
     ]);
-    return result["udemy-transcript-template"] || defaultTemplate;
-  } catch (_error) {
-    // Fallback to localStorage for compatibility
-    return localStorage.getItem("udemy-transcript-template") || defaultTemplate;
+    return result["udemy-transcript-template"] ?? defaultTemplate;
+  } catch {
+    return defaultTemplate;
   }
 };
 
-// Save template to storage
 const saveTemplate = async (template) => {
   try {
     await chrome.storage.local.set({"udemy-transcript-template": template});
-    // Also save to localStorage for content script compatibility
-    localStorage.setItem("udemy-transcript-template", template);
-  } catch (_error) {
-    // Fallback to localStorage
-    localStorage.setItem("udemy-transcript-template", template);
+  } catch {
+    // ignore
   }
 };
 

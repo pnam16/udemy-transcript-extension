@@ -1,0 +1,44 @@
+---
+description: Chrome Web Store and extension best practices for this project
+globs: "**/*.{json,js,html,md,mjs}"
+alwaysApply: false
+---
+
+# Chrome Extension Best Practices
+
+Follow [Chrome Web Store Best Practices](https://developer.chrome.com/docs/webstore/best-practices/) when changing this extension.
+
+## Manifest and platform
+
+- Use **Manifest V3** only (`manifest_version: 3`). Required for Chrome Web Store.
+- Request **minimal permissions**. Prefer `activeTab` over broad host permissions when possible.
+- Document each permission in README and in the store listing.
+
+## Performance and bfcache
+
+- **Do not use `unload` or `beforeunload`** in content scripts. They invalidate the back/forward cache and slow down users. Use `pagehide` if you need to run code when the page is hidden, or `chrome.tabs.onRemoved` for when a tab is closed.
+- **Do not use WebSockets or WebRTC in content scripts.** They prevent the page from being cached. Move such logic to a background service worker and communicate with the content script via `chrome.runtime.connect` / messaging.
+
+## Security and privacy
+
+- Do not send user data over non-HTTPS. No deceptive installation or behavior.
+- **Privacy disclosure**: Keep `PRIVACY.md` accurate. The Chrome Web Store Privacy tab must match: what data is collected, how it is used, and that it is accurate and up to date.
+- When adding new permissions or data handling, update `PRIVACY.md` and the store listing.
+
+## User experience
+
+- Keep the UI simple and non-distracting. Persistent UI (e.g. FAB, side panel) should support the task without clutter.
+- Do not request sign-in unless necessary; if you do, prefer Sign in with Google and the Chrome Identity API.
+
+## Store listing (when publishing)
+
+- Provide required assets: icon, tile, marquee, screenshots. See [Images of a high-quality listing](https://developer.chrome.com/docs/webstore/best-practices/#provide-great-images).
+- Description and listing must clearly state what the extension does.
+- Choose the correct category (e.g. Productivity, Education, Developer Tools) per the [category list](https://developer.chrome.com/docs/webstore/best-practices/#choose-your-extensions-category-well).
+- Follow [Branding Guidelines](https://developer.chrome.com/docs/webstore/branding/) for name, description, and logo.
+
+## Testing
+
+- Test on multiple Chrome versions and OSs when possible.
+- Consider end-to-end tests (e.g. Puppeteer) for critical flows.
+- Verify the extension does not break back/forward cache (no unload, no WebSockets in content script).

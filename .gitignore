@@ -19,10 +19,14 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+
+# cursor debug
+.cursor/debug.log
 
 # debug
 npm-debug.log*

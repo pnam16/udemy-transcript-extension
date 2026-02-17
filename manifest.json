@@ -5,8 +5,9 @@
   },
   "content_scripts": [
     {
+      "all_frames": true,
       "css": ["styles.css"],
-      "js": ["content.js"],
+      "js": ["shared.js", "content.js"],
       "matches": ["*://*.udemy.com/*"],
       "run_at": "document_idle"
     }

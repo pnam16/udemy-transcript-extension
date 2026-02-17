@@ -3,96 +3,71 @@
 
 (() => {
   let isProcessing = false;
+  const defaultTemplate =
+    globalThis.UDEMY_TRANSCRIPT_DEFAULT_TEMPLATE ||
+    "Transcript: {{ transcript }}";
 
-  // Default template
-  const defaultTemplate = `Analyze this video and provide insights.
-
-Transcript: {{ transcript }}
-
-Please provide:
-1. Executive Summary
-2. Key Points & Takeaways
-3. Notable Quotes
-4. Actionable Insights
-
-Format as clear, structured content.
-Result in Vietnamese and English.`;
-
-  // Get template from storage or use default
   const getTemplate = async () => {
     try {
-      // Try chrome.storage.local first (for popup sync)
-      if (typeof chrome !== "undefined" && chrome.storage) {
+      if (typeof chrome !== "undefined" && chrome.storage?.local) {
         const result = await chrome.storage.local.get([
           "udemy-transcript-template",
         ]);
-        if (result["udemy-transcript-template"]) {
-          return result["udemy-transcript-template"];
+        const stored = result["udemy-transcript-template"];
+        if (stored) {
+          return stored;
         }
       }
-    } catch (_error) {
-      // Fallback to localStorage
+    } catch {
+      // ignore
     }
-    // Fallback to localStorage
-    const saved = localStorage.getItem("udemy-transcript-template");
-    return saved || defaultTemplate;
+    return defaultTemplate;
   };
 
-  // Save template to storage
-  const saveTemplate = async (template) => {
-    try {
-      // Save to chrome.storage.local for popup sync
-      if (typeof chrome !== "undefined" && chrome.storage) {
-        await chrome.storage.local.set({
-          "udemy-transcript-template": template,
-        });
-      }
-    } catch (_error) {
-      // Fallback to localStorage
-    }
-    // Also save to localStorage as fallback
-    localStorage.setItem("udemy-transcript-template", template);
-  };
+  let notificationEl = null;
+  let notificationHideTimer = null;
 
-  // Show notification message
   const showNotification = (message, isError = false) => {
-    // Remove existing notification if any
-    const existing = document.getElementById("udemy-transcript-notification");
-    if (existing) {
-      existing.remove();
+    const rootDoc =
+      typeof getRootDocument === "function" ? getRootDocument() : document;
+    if (notificationHideTimer) {
+      clearTimeout(notificationHideTimer);
     }
+    if (!notificationEl || notificationEl.ownerDocument !== rootDoc) {
+      notificationEl = rootDoc.createElement("div");
+      notificationEl.id = "udemy-transcript-notification";
+      notificationEl.className = "udemy-transcript-notification";
+      rootDoc.body.appendChild(notificationEl);
+    }
+    notificationEl.className = `udemy-transcript-notification ${isError ? "error" : "success"}`;
+    notificationEl.textContent = message;
+    notificationEl.classList.add("show");
 
-    const notification = document.createElement("div");
-    notification.id = "udemy-transcript-notification";
-    notification.className = `udemy-transcript-notification ${
-      isError ? "error" : "success"
-    }`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    // Animate in
-    setTimeout(() => {
-      notification.classList.add("show");
-    }, 10);
-
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.classList.remove("show");
-      setTimeout(() => {
-        notification.remove();
-      }, 300);
+    notificationHideTimer = setTimeout(() => {
+      notificationEl.classList.remove("show");
+      notificationHideTimer = null;
     }, 3000);
   };
 
-  // Extract transcript text from the DOM
-  const extractTranscript = () => {
-    // First, find the transcript panel using stable selectors
-    const transcriptPanel =
-      document.querySelector('[data-purpose="transcript-panel"]') ||
-      document.querySelector('[class*="transcript-panel"]') ||
-      document.querySelector('[class*="sidebar--transcript"]') ||
-      document.querySelector('[class*="transcript--transcript-panel"]');
+  const TRANSCRIPT_PANEL_SELECTORS = [
+    '[data-purpose="transcript-panel"]',
+    '[class*="transcript-panel"]',
+    '[class*="sidebar--transcript"]',
+    '[class*="transcript--transcript-panel"]',
+  ];
 
+  const getTranscriptPanel = () => {
+    for (const sel of TRANSCRIPT_PANEL_SELECTORS) {
+      const el = document.querySelector(sel);
+      if (el) {
+        return el;
+      }
+    }
+    return null;
+  };
+
+  const extractTranscript = () => {
+    const transcriptPanel = getTranscriptPanel();
     if (!transcriptPanel) {
       return null;
     }
@@ -242,7 +217,7 @@ Result in Vietnamese and English.`;
       // Copy to clipboard
       await navigator.clipboard.writeText(formattedText);
       showNotification("Transcript copied to clipboard!");
-    } catch (_error) {
+    } catch {
       showNotification("Failed to copy transcript. Please try again.", true);
     } finally {
       isProcessing = false;
@@ -298,11 +273,48 @@ Result in Vietnamese and English.`;
   };
 
   // Handle Transcript tab click
-  const handleTranscriptTabClick = (_event) => {
+  const handleTranscriptTabClick = () => {
     // Small delay to ensure transcript panel starts loading
     setTimeout(() => {
       copyTranscript();
     }, 100);
+  };
+
+  // Root document (main frame) — video and notification live here; sidebar may be in iframe
+  const getRootDocument = () =>
+    window !== window.top ? window.top.document : document;
+
+  // Find the main lecture video (in main frame; sidebar can be in iframe)
+  const getLectureVideo = () => {
+    const doc = getRootDocument();
+    const video = doc.querySelector("video");
+    return video || null;
+  };
+
+  // Seek video to end and trigger 'ended' so Udemy marks lecture complete
+  const seekVideoToEnd = () => {
+    const video = getLectureVideo();
+    const duration = video?.duration;
+    if (!video) {
+      showNotification("No video found on this page.", true);
+      return false;
+    }
+    if (!Number.isFinite(duration) || duration <= 0) {
+      showNotification(
+        "Video not loaded yet. Wait a moment and try again.",
+        true,
+      );
+      return false;
+    }
+    video.currentTime = duration - 0.1;
+    video.onseeked = () => {
+      video.currentTime = duration;
+      video.onseeked = () => {
+        video.onseeked = null;
+        video.dispatchEvent(new Event("ended", {bubbles: true}));
+      };
+    };
+    return true;
   };
 
   // Find transcript toggle button (sidebar button)
@@ -320,12 +332,7 @@ Result in Vietnamese and English.`;
         return true;
       }
 
-      // Also check if transcript panel is visible
-      const transcriptPanel =
-        document.querySelector('[data-purpose="transcript-panel"]') ||
-        document.querySelector('[class*="transcript-panel"]') ||
-        document.querySelector('[class*="sidebar--transcript"]');
-
+      const transcriptPanel = getTranscriptPanel();
       if (transcriptPanel) {
         const style = window.getComputedStyle(transcriptPanel);
         if (style.display !== "none" && style.visibility !== "hidden") {
@@ -375,19 +382,38 @@ Result in Vietnamese and English.`;
     await copyTranscript();
   };
 
-  // Create and inject FAB button
+  // Create and inject FAB buttons (only in main frame so one set of FABs)
   const createFAB = () => {
-    // Remove existing FAB if any
-    const existingFAB = document.getElementById("udemy-transcript-fab");
-    if (existingFAB) {
-      existingFAB.remove();
+    if (window !== window.top) {
+      return;
+    }
+    const rootDoc = getRootDocument();
+    const existingContainer = rootDoc.getElementById(
+      "udemy-transcript-fab-container",
+    );
+    if (existingContainer) {
+      existingContainer.remove();
     }
 
-    const fabContainer = document.createElement("div");
+    const fabContainer = rootDoc.createElement("div");
     fabContainer.id = "udemy-transcript-fab-container";
     fabContainer.className = "udemy-transcript-fab-container";
 
-    const fab = document.createElement("button");
+    const seekFab = rootDoc.createElement("button");
+    seekFab.id = "udemy-transcript-seek-fab";
+    seekFab.className = "udemy-transcript-seek-fab";
+    seekFab.setAttribute("aria-label", "Seek to end");
+    seekFab.title = "Seek to end";
+    seekFab.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 18V6l8.5 6L4 18zm9 0V6l8.5 6L13 18z" fill="currentColor"/>
+      </svg>
+    `;
+    seekFab.addEventListener("click", () => {
+      seekVideoToEnd();
+    });
+
+    const fab = rootDoc.createElement("button");
     fab.id = "udemy-transcript-fab";
     fab.className = "udemy-transcript-fab";
     fab.setAttribute("aria-label", "Copy transcript");
@@ -398,36 +424,43 @@ Result in Vietnamese and English.`;
     `;
     fab.addEventListener("click", handleFABClick);
 
+    fabContainer.appendChild(seekFab);
     fabContainer.appendChild(fab);
-    document.body.appendChild(fabContainer);
+    rootDoc.body.appendChild(fabContainer);
   };
 
-  // Initialize when page loads
   const init = () => {
-    // Create FAB button
     createFAB();
-
-    // Setup initial listener
     setupTranscriptTabListener();
 
-    // Use MutationObserver to handle dynamic content
-    const observer = new MutationObserver(() => {
-      setupTranscriptTabListener();
-    });
+    let observerDebounceTimer = null;
+    const debouncedSetup = () => {
+      if (observerDebounceTimer) {
+        clearTimeout(observerDebounceTimer);
+      }
+      observerDebounceTimer = setTimeout(() => {
+        observerDebounceTimer = null;
+        setupTranscriptTabListener();
+      }, 200);
+    };
 
-    // Observe changes to the document body
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    const observer = new MutationObserver(debouncedSetup);
+    observer.observe(document.body, {childList: true, subtree: true});
 
-    // Also check periodically for the tab button (in case observer misses it)
-    const _checkInterval = setInterval(() => {
+    let tabFoundCount = 0;
+    let checksLeft = 30;
+    const checkInterval = setInterval(() => {
       const tab = findTranscriptTab();
       if (tab) {
         setupTranscriptTabListener();
-        // Clear interval once we found it and set up listener
-        // But keep checking in case page structure changes
+        tabFoundCount++;
+        if (tabFoundCount >= 2) {
+          clearInterval(checkInterval);
+        }
+      }
+      checksLeft--;
+      if (checksLeft <= 0) {
+        clearInterval(checkInterval);
       }
     }, 1000);
   };
