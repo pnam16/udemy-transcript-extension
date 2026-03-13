@@ -40,20 +40,6 @@
   border-left: 4px solid #dc3545;
 }
 
-/* Transcript tab hover styles */
-button[role="tab"].udemy-transcript-tab:hover {
-  color: #8a2be2 !important;
-  cursor: pointer;
-  background-color: rgba(138, 43, 226, 0.15) !important;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-button[role="tab"].udemy-transcript-tab:hover .ud-btn-label {
-  color: #8a2be2 !important;
-}
-
 /* Floating Action Button (FAB) */
 .udemy-transcript-fab {
   display: flex;

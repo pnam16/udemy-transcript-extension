@@ -132,12 +132,12 @@
     <h2>Transcript Template Settings</h2>
   </div>
   <div class="body">
-    <label for="template-input">Edit template (use {{ transcript }} as placeholder):</label>
+    <label for="template-input">Edit template (use &#123;&#123; transcript &#125;&#125; as placeholder):</label>
     <textarea id="template-input" placeholder="Loading..."></textarea>
-    <div class="info">The template will be used when copying transcripts. Use {{ transcript }} as a placeholder for the actual transcript text.</div>
+    <div class="info">The template will be used when copying transcripts. Use &#123;&#123; transcript &#125;&#125; as a placeholder for the actual transcript text.</div>
     <div class="actions">
-      <button class="btn-reset" id="reset-btn">Reset to Default</button>
-      <button class="btn-save" id="save-btn">Save</button>
+      <button class="btn-reset" id="reset-btn" type="button">Reset to Default</button>
+      <button class="btn-save" id="save-btn" type="button">Save</button>
     </div>
     <div class="message" id="message"></div>
   </div>
