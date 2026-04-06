@@ -1,7 +1,12 @@
 {
   "action": {
+    "default_icon": {
+      "16": "icons/action16.png",
+      "24": "icons/action24.png",
+      "32": "icons/action32.png"
+    },
     "default_popup": "popup.html",
-    "default_title": "Udemy Transcript Copier"
+    "default_title": "UdePrompt"
   },
   "content_scripts": [
     {
@@ -12,9 +17,18 @@
       "run_at": "document_idle"
     }
   ],
-  "description": "Extract and copy Udemy lecture transcripts with customizable templates. Features a floating action button, template editor, and automatic transcript extraction.",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;"
+  },
+  "description": "Copy Udemy transcripts to clipboard: custom templates, floating button, Transcript tab shortcut. UdePrompt — private; runs only on udemy.com.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "manifest_version": 3,
-  "name": "Udemy Transcript Copier",
-  "permissions": ["activeTab", "clipboardWrite", "storage"],
+  "name": "UdePrompt",
+  "permissions": ["clipboardWrite", "storage"],
   "version": "1.0.0"
 }

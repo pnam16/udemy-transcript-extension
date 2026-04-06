@@ -1,6 +1,6 @@
-# Privacy – Udemy Transcript Copier
+# Privacy – UdePrompt
 
-This document describes how the Udemy Transcript Copier Chrome extension handles user data, for compliance with [Chrome Web Store policies](https://developer.chrome.com/docs/webstore/program-policies/) and the [Best Practices](https://developer.chrome.com/docs/webstore/best-practices/).
+This document describes how the UdePrompt Chrome extension handles user data, for compliance with [Chrome Web Store policies](https://developer.chrome.com/docs/webstore/program-policies/) and the [Best Practices](https://developer.chrome.com/docs/webstore/best-practices/).
 
 ## Data collection
 

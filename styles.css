@@ -1,4 +1,116 @@
-/* Udemy Transcript Copier - Notification Styles */
+/* UdePrompt — on-page UI (neutral surfaces + amber accent, matches popup) */
+
+:root {
+  --utc-ink: #0b1220;
+  --utc-paper: #ffffff;
+  --utc-line: #e5e7eb;
+  --utc-muted-surface: #f3f4f6;
+  --utc-accent: #d97706;
+  --utc-accent-hover: #b45309;
+  --utc-accent-deep: #92400e;
+  --utc-shadow: rgba(15, 23, 42, 0.12);
+}
+
+/* System dark (no popup override) or explicit dark */
+@media (prefers-color-scheme: dark) {
+  #udemy-transcript-fab-container:not([data-utc-theme]),
+  .udemy-transcript-notification:not([data-utc-theme]) {
+    --utc-ink: #f8fafc;
+    --utc-paper: #1e293b;
+    --utc-line: #334155;
+    --utc-muted-surface: #334155;
+    --utc-accent: #f59e0b;
+    --utc-accent-hover: #d97706;
+    --utc-accent-deep: #b45309;
+    --utc-shadow: rgba(0, 0, 0, 0.35);
+  }
+
+  .udemy-transcript-notification:not([data-utc-theme]) {
+    color: #f8fafc;
+    background-color: #1e293b;
+    box-shadow: 0 14px 36px var(--utc-shadow);
+  }
+
+  .udemy-transcript-notification.success:not([data-utc-theme]) {
+    color: #c8e6ca;
+    background-color: #14261a;
+    border-left-color: #4ade80;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  }
+
+  .udemy-transcript-notification.error:not([data-utc-theme]) {
+    color: #fecaca;
+    background-color: #301a18;
+    border-left-color: #f87171;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+  }
+}
+
+#udemy-transcript-fab-container[data-utc-theme="dark"],
+.udemy-transcript-notification[data-utc-theme="dark"] {
+  --utc-ink: #f8fafc;
+  --utc-paper: #1e293b;
+  --utc-line: #334155;
+  --utc-muted-surface: #334155;
+  --utc-accent: #f59e0b;
+  --utc-accent-hover: #d97706;
+  --utc-accent-deep: #b45309;
+  --utc-shadow: rgba(0, 0, 0, 0.35);
+}
+
+.udemy-transcript-notification[data-utc-theme="dark"] {
+  color: #f8fafc;
+  background-color: #1e293b;
+  box-shadow: 0 14px 36px var(--utc-shadow);
+}
+
+.udemy-transcript-notification.success[data-utc-theme="dark"] {
+  color: #c8e6ca;
+  background-color: #14261a;
+  border-left-color: #4ade80;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.udemy-transcript-notification.error[data-utc-theme="dark"] {
+  color: #fecaca;
+  background-color: #301a18;
+  border-left-color: #f87171;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  #udemy-transcript-fab-container[data-utc-theme="light"],
+  .udemy-transcript-notification[data-utc-theme="light"] {
+    --utc-ink: #0b1220;
+    --utc-paper: #ffffff;
+    --utc-line: #e5e7eb;
+    --utc-muted-surface: #f3f4f6;
+    --utc-accent: #d97706;
+    --utc-accent-hover: #b45309;
+    --utc-accent-deep: #92400e;
+    --utc-shadow: rgba(15, 23, 42, 0.12);
+  }
+
+  .udemy-transcript-notification[data-utc-theme="light"] {
+    color: #ffffff;
+    background-color: #0b1220;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  }
+
+  .udemy-transcript-notification.success[data-utc-theme="light"] {
+    color: #0f2412;
+    background-color: #dcefe0;
+    border-left-color: #2d6a3e;
+    box-shadow: 0 12px 28px rgba(15, 36, 18, 0.12);
+  }
+
+  .udemy-transcript-notification.error[data-utc-theme="light"] {
+    color: #3f0f0c;
+    background-color: #f3deda;
+    border-left-color: #b42318;
+    box-shadow: 0 12px 28px rgba(64, 15, 12, 0.12);
+  }
+}
 
 .udemy-transcript-notification {
   position: fixed;
@@ -7,22 +119,21 @@
   z-index: 10000;
   max-width: 300px;
   padding: 12px 20px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: white;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #ffffff;
   word-wrap: break-word;
   pointer-events: none;
-  background-color: #1c1d1f;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: var(--utc-ink);
+  border-radius: 10px;
+  box-shadow: 0 14px 36px var(--utc-shadow);
   opacity: 0;
   transform: translateY(-10px);
   transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+    opacity 0.18s ease-out,
+    transform 0.18s ease-out;
 }
 
 .udemy-transcript-notification.show {
@@ -31,16 +142,19 @@
 }
 
 .udemy-transcript-notification.success {
-  background-color: #0f5132;
-  border-left: 4px solid #198754;
+  color: #0f2412;
+  background-color: #dcefe0;
+  border-left: 4px solid #2d6a3e;
+  box-shadow: 0 12px 28px rgba(15, 36, 18, 0.12);
 }
 
 .udemy-transcript-notification.error {
-  background-color: #842029;
-  border-left: 4px solid #dc3545;
+  color: #3f0f0c;
+  background-color: #f3deda;
+  border-left: 4px solid #b42318;
+  box-shadow: 0 12px 28px rgba(64, 15, 12, 0.12);
 }
 
-/* Floating Action Button (FAB) */
 .udemy-transcript-fab {
   display: flex;
   align-items: center;
@@ -48,23 +162,35 @@
   width: 52px;
   height: 52px;
   padding: 0;
-  color: white;
+  color: #0f172a;
   cursor: pointer;
-  background-color: #8a2be2;
+  background: var(--utc-accent);
   border: none;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
-  transition: all 0.3s ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 8px 20px rgba(217, 119, 6, 0.35);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .udemy-transcript-fab:hover {
-  background-color: #7a1bd2;
-  box-shadow: 0 6px 16px rgba(138, 43, 226, 0.5);
-  transform: scale(1.1);
+  background: var(--utc-accent-hover);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 10px 24px rgba(217, 119, 6, 0.42);
+  transform: scale(1.05);
 }
 
 .udemy-transcript-fab:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
+}
+
+.udemy-transcript-fab:focus-visible {
+  outline: 2px solid var(--utc-accent);
+  outline-offset: 3px;
 }
 
 .udemy-transcript-fab svg {
@@ -72,7 +198,6 @@
   height: 28px;
 }
 
-/* FAB Container */
 .udemy-transcript-fab-container {
   position: fixed;
   right: 24px;
@@ -84,7 +209,6 @@
   align-items: center;
 }
 
-/* Seek to end FAB */
 .udemy-transcript-seek-fab {
   display: flex;
   align-items: center;
@@ -92,25 +216,55 @@
   width: 52px;
   height: 52px;
   padding: 0;
-  color: white;
+  color: var(--utc-ink);
   cursor: pointer;
-  background-color: #0f5132;
-  border: none;
+  background-color: var(--utc-paper);
+  border: 1px solid var(--utc-line);
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(15, 81, 50, 0.4);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px var(--utc-shadow);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .udemy-transcript-seek-fab:hover {
-  background-color: #198754;
-  transform: scale(1.1);
+  background-color: var(--utc-muted-surface);
+  border-color: color-mix(in srgb, var(--utc-line) 65%, var(--utc-ink));
+  transform: scale(1.06);
 }
 
 .udemy-transcript-seek-fab:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
+}
+
+.udemy-transcript-seek-fab:focus-visible {
+  outline: 2px solid var(--utc-accent);
+  outline-offset: 3px;
 }
 
 .udemy-transcript-seek-fab svg {
   width: 28px;
   height: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .udemy-transcript-notification {
+    transition: opacity 0.2s ease;
+  }
+
+  .udemy-transcript-notification.show {
+    transform: none;
+  }
+
+  .udemy-transcript-fab,
+  .udemy-transcript-fab:hover,
+  .udemy-transcript-fab:active,
+  .udemy-transcript-seek-fab,
+  .udemy-transcript-seek-fab:hover,
+  .udemy-transcript-seek-fab:active {
+    transform: none;
+    transition: none;
+  }
 }

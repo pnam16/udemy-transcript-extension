@@ -1,11 +1,11 @@
-# Udemy Transcript Copier
+# UdePrompt
 
-A Chrome extension that automatically extracts and copies transcript text from Udemy video lectures with customizable templates.
+**UdePrompt** is a Chrome extension for **Udemy**: copy **lecture transcripts** to your **clipboard** in one step, with **custom templates** (great for notes, summaries, or **AI prompts**). Works on `*.udemy.com` course pages only; nothing is sent to external servers.
 
 ## Features
 
-- **Floating Action Button (FAB)**: Click the purple FAB button to automatically open the transcript sidebar and copy the transcript
-- **Seek to end**: Click the green FAB button (above the purple one) to seek the current video to the end
+- **Floating Action Button (FAB)**: Terracotta FAB opens the transcript sidebar (if needed) and copies the transcript
+- **Seek to end**: Neutral secondary FAB above it seeks the lecture video to the end
 - **Template System**: Customize the format of copied text using templates with `{{ transcript }}` placeholder
 - **Extension Popup**: Click the extension icon to edit your template in a convenient popup
 - **Settings Panel**: Access settings directly from the page with a gear icon button
@@ -17,7 +17,7 @@ A Chrome extension that automatically extracts and copies transcript text from U
 ## Installation
 
 1. Clone or download this repository
-2. (Optional) Install dependencies and build: `pnpm install` then `pnpm run build`. To use the built bundle, select the `dist/` folder in step 5; otherwise use the repo root.
+2. (Optional) Install dependencies and build: `bun install` then `bun run build`. To use the built bundle, select the `dist/` folder in step 5; otherwise use the repo root.
 3. Open Chrome and navigate to `chrome://extensions/`
 4. Enable "Developer mode" (toggle in the top right)
 5. Click "Load unpacked"
@@ -26,11 +26,13 @@ A Chrome extension that automatically extracts and copies transcript text from U
 
 ## Development
 
-- **Install dependencies**: `pnpm install`
-- **Build**: `pnpm run build` — builds and minifies JS (esbuild, IIFE), copies manifest and popup HTML, minifies CSS; output is in `dist/`
-- **Lint**: `pnpm run lint` — runs Biome check and format
+- **Install dependencies**: `bun install`
+- **Icons & store art**: `bun run icons` — rasterizes root `icon.svg` to `public/icons/` (extension + toolbar sizes) and writes CWS placeholder PNGs under `public/store/` (not copied into `dist/`; upload those in the Web Store dashboard)
+- **Build**: `bun run build` — bundles and minifies JS with **esbuild** (IIFE), copies `manifest.json` / `popup.html` / `styles.css` / `public/icons/*.png` → `dist/icons/` via **vite-plugin-static-copy** (CSS minified with esbuild); output is in `dist/`
+- **Dev (watch)**: `bun run dev` — same as build, rebuilds `dist/` when sources change
+- **Lint**: `bun run lint` — Biome check and format (`bunx @biomejs/biome`)
 
-Tech: Node.js, pnpm, esbuild (build), Biome (lint/format).
+Tech: **Bun** (install, scripts, `bunx`), Vite (orchestrates build), esbuild (bundles), **sharp** (icon PNG generation), Biome (lint/format). A Node-compatible runtime is still required for Vite.
 
 ## Usage
 
@@ -106,9 +108,9 @@ You can customize this to any format you prefer. The `{{ transcript }}` placehol
 
 ## Permissions
 
-- `activeTab`: Required to access the current Udemy tab
-- `clipboardWrite`: Required to copy text to clipboard
-- `storage`: Required to save and sync template settings between popup and content script
+- `clipboardWrite`: Clipboard writes after async work (e.g. after the transcript loads) without a continuous user gesture
+- `storage`: Saves the template and UI theme (`chrome.storage.local` / `chrome.storage.sync`)
+- **Site access**: The content script is limited to `*://*.udemy.com/*` via `manifest.json` `content_scripts` matches (not a separate `host_permissions` entry)
 
 ## Troubleshooting
 
@@ -129,15 +131,19 @@ You can customize this to any format you prefer. The `{{ transcript }}` placehol
 
 ## Project structure
 
+- `icon.svg` — Source artwork for extension / toolbar icons (`bun run icons`)
+- `public/icons/` — Generated PNGs (16–128px); copied into `dist/icons/` on build
+- `public/store/` — Chrome Web Store listing placeholders (screenshot / promo); not packaged in the extension
+- `scripts/generate-icons.js` — **sharp** pipeline: `icon.svg` → icons + store placeholders
 - `manifest.json` — Extension configuration and permissions
 - `content.js` — Content script: FAB, transcript extraction, template formatting (runs with `shared.js`)
 - `shared.js` — Default transcript template (shared by content script and popup)
 - `popup.html` — Extension popup UI for template editing
 - `popup.js` — Popup script for template management
 - `styles.css` — Styling for notifications, FAB, settings panel, and hover effects
-- `build.mjs` — Build script: esbuild for JS (→ `dist/`), copy manifest/popup, minify CSS
+- `vite.config.js` — Vite orchestrates **esbuild** for JS bundles and **vite-plugin-static-copy** for static assets (→ `dist/`)
 - `biome.json` — Lint and format config (Biome)
-- `dist/` — Build output (generated by `pnpm run build`); load this folder for a production-style install
+- `dist/` — Build output (generated by `bun run build`); load this folder for a production-style install
 - `PRIVACY.md` — Privacy and data handling
 - `README.md` — This file
 

@@ -1,14 +1,19 @@
 {
-  "name": "udemy-transcript",
+  "name": "udeprompt",
   "version": "1.0.0",
-  "description": "Udemy transcript extension",
+  "description": "UdePrompt — Chrome extension for Udemy transcript copy & templates",
   "type": "module",
   "scripts": {
-    "build": "node build.mjs",
-    "lint": "pnpm exec biome check --write"
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "icons": "node scripts/generate-icons.js",
+    "lint": "bunx @biomejs/biome check --write"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
-    "esbuild": "^0.24.2"
+    "@biomejs/biome": "^2.4.10",
+    "esbuild": "^0.28.0",
+    "sharp": "^0.34.5",
+    "vite": "^6.4.1",
+    "vite-plugin-static-copy": "^4.0.1"
   }
 }

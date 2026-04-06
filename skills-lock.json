@@ -1,0 +1,35 @@
+{
+  "skills": {
+    "accessibility": {
+      "computedHash": "6462f04969f59f771150e6410e6a11fa397f2934be0b51e8650f495feed1e28d",
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github"
+    },
+    "bun": {
+      "computedHash": "c20fe20eb84bb56fd5a96eae6e36c5fd8d38f989818a4944f8a08140fe5e7a5b",
+      "source": "bun.sh",
+      "sourceType": "well-known"
+    },
+    "frontend-design": {
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67",
+      "source": "anthropics/skills",
+      "sourceType": "github"
+    },
+    "nodejs-best-practices": {
+      "computedHash": "64f10ff6795265dc4a97a72af86ee309fe57e6c35507775a4da893985984956b",
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github"
+    },
+    "seo": {
+      "computedHash": "f1fed683b76913d26fbf1aa1e008e6932f7771701fc3a79925b042236aa4681a",
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github"
+    },
+    "vite": {
+      "computedHash": "867ff66238f3152e9c494339ad08dc432dd0df5bcf5cc7a00b61a72b580eb908",
+      "source": "antfu/skills",
+      "sourceType": "github"
+    }
+  },
+  "version": 1
+}

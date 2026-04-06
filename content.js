@@ -1,7 +1,10 @@
-// Udemy Transcript Copier - Content Script
+// UdePrompt - Content Script
 // Detects clicks on Transcript tab and automatically copies transcript to clipboard
 
 (() => {
+  const UI_THEME_STORAGE_KEY = "udeprompt-ui-theme";
+  let cachedPageUiTheme = "system";
+
   let isProcessing = false;
   const defaultTemplate =
     globalThis.UDEMY_TRANSCRIPT_DEFAULT_TEMPLATE ||
@@ -27,6 +30,41 @@
   let notificationEl = null;
   let notificationHideTimer = null;
 
+  const applyInjectedUiThemeAttributes = () => {
+    const rootDoc =
+      typeof getRootDocument === "function" ? getRootDocument() : document;
+    const fabHost = rootDoc.getElementById("udemy-transcript-fab-container");
+    if (fabHost) {
+      if (cachedPageUiTheme === "system") {
+        fabHost.removeAttribute("data-utc-theme");
+      } else {
+        fabHost.setAttribute("data-utc-theme", cachedPageUiTheme);
+      }
+    }
+    if (notificationEl?.isConnected) {
+      if (cachedPageUiTheme === "system") {
+        notificationEl.removeAttribute("data-utc-theme");
+      } else {
+        notificationEl.setAttribute("data-utc-theme", cachedPageUiTheme);
+      }
+    }
+  };
+
+  const loadPageUiThemeFromStorage = async () => {
+    try {
+      if (typeof chrome !== "undefined" && chrome.storage?.sync) {
+        const result = await chrome.storage.sync.get([UI_THEME_STORAGE_KEY]);
+        const value = result[UI_THEME_STORAGE_KEY];
+        if (value === "light" || value === "dark" || value === "system") {
+          return value;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return "system";
+  };
+
   const showNotification = (message, isError = false) => {
     const rootDoc =
       typeof getRootDocument === "function" ? getRootDocument() : document;
@@ -37,8 +75,12 @@
       notificationEl = rootDoc.createElement("div");
       notificationEl.id = "udemy-transcript-notification";
       notificationEl.className = "udemy-transcript-notification";
+      notificationEl.setAttribute("aria-atomic", "true");
       rootDoc.body.appendChild(notificationEl);
+      applyInjectedUiThemeAttributes();
     }
+    notificationEl.setAttribute("role", isError ? "alert" : "status");
+    notificationEl.setAttribute("aria-live", isError ? "assertive" : "polite");
     notificationEl.className = `udemy-transcript-notification ${isError ? "error" : "success"}`;
     notificationEl.textContent = message;
     notificationEl.classList.add("show");
@@ -398,14 +440,17 @@
     const fabContainer = rootDoc.createElement("div");
     fabContainer.id = "udemy-transcript-fab-container";
     fabContainer.className = "udemy-transcript-fab-container";
+    fabContainer.setAttribute("role", "region");
+    fabContainer.setAttribute("aria-label", "UdePrompt");
 
     const seekFab = rootDoc.createElement("button");
+    seekFab.type = "button";
     seekFab.id = "udemy-transcript-seek-fab";
     seekFab.className = "udemy-transcript-seek-fab";
-    seekFab.setAttribute("aria-label", "Seek to end");
-    seekFab.title = "Seek to end";
+    seekFab.setAttribute("aria-label", "Seek lecture video to end");
+    seekFab.title = "Seek lecture video to end";
     seekFab.innerHTML = `
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
         <path d="M4 18V6l8.5 6L4 18zm9 0V6l8.5 6L13 18z" fill="currentColor"/>
       </svg>
     `;
@@ -414,11 +459,15 @@
     });
 
     const fab = rootDoc.createElement("button");
+    fab.type = "button";
     fab.id = "udemy-transcript-fab";
     fab.className = "udemy-transcript-fab";
-    fab.setAttribute("aria-label", "Copy transcript");
+    fab.setAttribute(
+      "aria-label",
+      "Open transcript panel if needed and copy lecture transcript",
+    );
     fab.innerHTML = `
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
         <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="currentColor"/>
       </svg>
     `;
@@ -431,6 +480,26 @@
 
   const init = () => {
     createFAB();
+
+    void (async () => {
+      cachedPageUiTheme = await loadPageUiThemeFromStorage();
+      applyInjectedUiThemeAttributes();
+    })();
+
+    if (typeof chrome !== "undefined" && chrome.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((changes, area) => {
+        if (area !== "sync" || !changes[UI_THEME_STORAGE_KEY]) {
+          return;
+        }
+        const next = changes[UI_THEME_STORAGE_KEY].newValue;
+        cachedPageUiTheme =
+          next === "light" || next === "dark" || next === "system"
+            ? next
+            : "system";
+        applyInjectedUiThemeAttributes();
+      });
+    }
+
     setupTranscriptTabListener();
 
     let observerDebounceTimer = null;
